@@ -70,4 +70,4 @@ set service ssh listen-address 10.0.5.1
 
 # Setting hostname/name-server
 set system host-name vyos2-damion
-set system name-server 10.0.7.2
+set system name-server 10.0.17.2
