@@ -1,0 +1,73 @@
+#Addresses for Interfaces (eth0/eth1/eth2)
+set interfaces ethernet eth0 address 10.0.17.74/24
+set interfaces ethernet eth0 description 'WAN'
+set interfaces ethernet eth1 address 10.0.5.3/24
+set interfaces ethernet eth1 description 'LAN'
+set interfaces ethernet eth2 address 10.0.6.2/24
+set interfaces ethernet eth2 description 'OPT'
+
+#Config for VRRP LAN Interface
+set high-availability vrrp group langroup4 interface eth1
+set high-availability vrrp group langroup4 priority 100
+set high-availability vrrp group langroup4 preempt-delay 20
+set high-availability vrrp group langroup4 virtual-address 10.0.5.1/24
+set high-availability vrrp group langroup4 vrid 10
+
+#Config for VRRP OPT Interface
+set high-availability vrrp group optgroup4 interface eth2
+set high-availability vrrp group optgroup4 priority 100
+set high-availability vrrp group optgroup4 preempt-delay 20  
+set high-availability vrrp group optgroup4 virtual-address 10.0.6.3/24
+set high-availability vrrp group optgroup4 vrid 20
+
+#Config for VRRP WAN Interface  
+set high-availability vrrp group wangroup4 interface eth0
+set high-availability vrrp group wangroup4 priority 100
+set high-availability vrrp group wangroup4 preempt-delay 20
+set high-availability vrrp group wangroup4 virtual-address 10.0.17.104/24
+set high-availability vrrp group wangroup4 vrid 154
+
+#Nat Destination/Nat Source Rules
+set nat destination rule 10 description 'Port Forwarding HTTP from WAN to WEB01'
+set nat destination rule 10 destination port '80'
+set nat destination rule 10 inbound-interface 'eth0'
+set nat destination rule 10 protocol 'tcp'
+set nat destination rule 10 translation address '10.0.5.100' (Will reference this on main wiki page, but this is changed to to 10.0.6.10 later)
+
+set nat destination rule 20 description "Port Forwarding SSH from WAN to Web01"
+set nat destination rule 20 destination port 22
+set nat destination rule 20 inbound-interface eth0
+set nat destination rule 20 protocol tcp
+set nat destination rule 20 translation address 10.0.5.100
+
+set nat source rule 10 description "NAT from LAN to WAN"
+set nat source rule 10 outbound-interface eth0
+set nat source rule 10 source-address 10.0.5.0/24
+set nat source rule 10 translation address masquerade
+
+set nat source rule 20 description "OPT to WAN"
+set nat source rule 20 outbound-interface eth0
+set nat source rule 20 source-address 10.0.6.0/24
+set nat source rule 20 translation address masquerade
+
+# Protocols (Next-Hop Static Route)
+set protocols static route 0.0.0.0/0 next-hop 10.0.17.2
+
+#Set DNS Forwarding
+set service dns forwarding allow-from '10.0.5.0/24'
+set service dns forwarding allow-from '10.0.17.0/24'
+set service dns forwarding allow-from '10.0.6.0/24'
+set service dns forwarding listen-address '10.0.5.1'
+set service dns forwarding listen-address '10.0.17.2'
+set service dns forwarding listen-address '10.0.17.104'
+set service dns forwarding listen-address '10.0.6.1'
+set service dns forwarding listen-address '10.0.6.3'
+set service dns forwarding listen-address '10.0.6.10'
+
+# Setting SSH Listen-addresse(s)
+set service ssh listen-address 0.0.0.0
+set service ssh listen-address 10.0.5.1
+
+# Setting hostname/name-server
+set system host-name vyos2-damion
+set system name-server 10.0.7.2
