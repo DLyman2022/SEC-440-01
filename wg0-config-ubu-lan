@@ -1,0 +1,13 @@
+### This details my UBUNTU-LAN wg0 config
+
+[Interface]
+ListenPort = 51900
+PrivateKey = [HIDDEN]
+Address = 10.0.101.2
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ens162 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ens162 -j MASQUERADE
+[Peer]
+PublicKey = B+ulWK65ujc+vgOxjH5E2yhj3/LawszuD+joRex+HB0=
+AllowedIPs = 10.0.101.1/32
+Endpoint = ec2-34-207-67-145.compute-1.amazonaws.com:51900
+PersistentKeepAlive = 25
